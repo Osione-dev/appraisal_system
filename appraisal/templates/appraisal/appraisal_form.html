@@ -1,0 +1,109 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}{{ action }} Appraisal — AppraisalPro{% endblock %}
+{% block nav_new %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">{{ action }} Self-Appraisal</div>
+    <div class="topbar-subtitle">Complete all sections honestly — your lead will review this</div>
+  </div>
+  <a href="{% url 'employee_dashboard' %}" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="content">
+  {% if form.errors %}
+  <div class="alert alert-error">Please correct the errors below before saving.</div>
+  {% endif %}
+
+  <form method="post" id="appraisalForm">
+    {% csrf_token %}
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📅 Appraisal Period</div>
+          <div class="card-subtitle">Specify the time period this appraisal covers</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ form.period.label }}</label>
+        {{ form.period }}
+        {% if form.period.errors %}<div class="form-error">{{ form.period.errors|join:", " }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🙋 Self-Evaluation</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.self_summary.label }}</label>
+        <div class="form-hint">{{ form.self_summary.help_text }}</div>
+        {{ form.self_summary }}
+        {% if form.self_summary.errors %}<div class="form-error">{{ form.self_summary.errors|join:", " }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.achievements.label }}</label>
+        <div class="form-hint">{{ form.achievements.help_text }}</div>
+        {{ form.achievements }}
+        {% if form.achievements.errors %}<div class="form-error">{{ form.achievements.errors|join:", " }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.challenges.label }}</label>
+        <div class="form-hint">{{ form.challenges.help_text }}</div>
+        {{ form.challenges }}
+        {% if form.challenges.errors %}<div class="form-error">{{ form.challenges.errors|join:", " }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🎯 Looking Ahead</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.goals_next_period.label }}</label>
+        <div class="form-hint">{{ form.goals_next_period.help_text }}</div>
+        {{ form.goals_next_period }}
+        {% if form.goals_next_period.errors %}<div class="form-error">{{ form.goals_next_period.errors|join:", " }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.training_needs.label }} <span class="text-muted">(optional)</span></label>
+        <div class="form-hint">{{ form.training_needs.help_text }}</div>
+        {{ form.training_needs }}
+        {% if form.training_needs.errors %}<div class="form-error">{{ form.training_needs.errors|join:", " }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ form.additional_comments.label }} <span class="text-muted">(optional)</span></label>
+        {{ form.additional_comments }}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✅ Submit</div>
+      </div>
+      <p style="font-size:0.83rem;color:var(--muted);margin-bottom:18px;">
+        Save as a <strong>draft</strong> to continue editing, or <strong>submit</strong> to send it to your Team Lead for review.
+        Once submitted, you won't be able to edit this appraisal.
+      </p>
+      <div class="flex gap-3">
+        <button type="submit" name="action" value="save" class="btn btn-secondary">
+          💾 Save Draft
+        </button>
+        <button type="submit" name="action" value="submit" class="btn btn-primary"
+          onclick="return confirm('Submit this appraisal to your Team Lead? You won\'t be able to edit it after.')">
+          🚀 Submit to Team Lead
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

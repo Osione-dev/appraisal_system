@@ -1,0 +1,175 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}HR Dashboard — Opex Appraisal{% endblock %}
+{% block nav_hr %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">All Appraisals</div>
+    <div class="topbar-subtitle">Review and finalise appraisals submitted by team leads</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ── Summary stat cards ── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Appraisals</div>
+      <div class="stat-value accent">{{ total }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Awaiting HR Review</div>
+      <div class="stat-value warning">{{ pending_hr }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Fully Reviewed</div>
+      <div class="stat-value success">{{ reviewed }}</div>
+    </div>
+  </div>
+
+  <!-- ── Filter / search bar ── -->
+  <!-- Submits as a GET request so the filters are visible in the URL and bookmarkable -->
+  <div class="card">
+    <form method="get" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+
+      <!-- Free-text search across employee name and period -->
+      <div class="form-group" style="flex:1;min-width:200px;margin-bottom:0;">
+        <label class="form-label">Search</label>
+        <input
+          type="text"
+          name="search"
+          class="form-control"
+          placeholder="Name or period..."
+          value="{{ search }}"  {# keeps the box filled after submit #}
+        >
+      </div>
+
+      <!-- Status filter dropdown — choices come from STATUS_CHOICES passed by the view -->
+      <div class="form-group" style="width:220px;margin-bottom:0;">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control">
+          <option value="">All statuses</option>
+          {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="height:38px;">Filter</button>
+      <!-- Clear link resets both filters by going back to the base URL with no params -->
+      <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary" style="height:38px;">Clear</a>
+    </form>
+  </div>
+
+  <!-- ── Appraisals table ── -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📋 Appraisal Records</div>
+        <div class="card-subtitle">
+          {% if search or status_filter %}
+            Showing filtered results
+          {% else %}
+            All appraisals across the organisation
+          {% endif %}
+        </div>
+      </div>
+      <!-- Show how many are currently waiting for HR action -->
+      {% if pending_hr %}
+      <span class="badge badge-hr">{{ pending_hr }} need review</span>
+      {% endif %}
+    </div>
+
+    {% if appraisals %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Department</th>
+            <th>Period</th>
+            <th>Status</th>
+            <th>Lead Rating</th>
+            <th>Reviewed By Lead</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in appraisals %}
+          <tr>
+            <td>
+              <strong>{% if a.reviewed_by_lead %}{{ a.reviewed_by_lead.username }}{% else %}—{% endif %}</strong>
+              {% if a.employee.job_title %}
+              <div class="text-muted text-sm">{{ a.employee.job_title }}</div>
+              {% endif %}
+            </td>
+
+            <td class="text-muted text-sm">
+              {{ a.employee.department|default:"—" }}
+            </td>
+
+            <td>{{ a.period }}</td>
+
+            <!-- Coloured badge matching the appraisal's current status -->
+            <td><span class="badge {{ a.status_badge_class }}">{{ a.get_status_display }}</span></td>
+
+            <!-- Stars only appear once the lead has submitted their rating -->
+            <td>
+              {% if a.lead_rating %}
+              <span class="rating-stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= a.lead_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              <span class="text-muted text-sm">({{ a.lead_rating }}/5)</span>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+
+            <td class="text-sm text-muted">
+              {% if a.reviewed_by_lead %}
+                {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
+              {% else %}
+                    — 
+              {% endif %}
+            </td>
+
+            <td style="display:flex;gap:6px;">
+              <!-- HR can review only appraisals that are in pending_hr status -->
+              {% if a.status == 'pending_hr' %}
+              <a href="{% url 'hr_review' a.pk %}" class="btn btn-sm btn-primary">Review →</a>
+              {% else %}
+              <a href="{% url 'hr_appraisal_detail' a.pk %}" class="btn btn-sm btn-outline">View</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+    <!-- Empty state shown when no appraisals match the current filter -->
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No appraisals found</h3>
+      <p>
+        {% if search or status_filter %}
+          Try adjusting your search or filter criteria.
+        {% else %}
+          No appraisals have been submitted yet.
+        {% endif %}
+      </p>
+      {% if search or status_filter %}
+      <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">Clear filters</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

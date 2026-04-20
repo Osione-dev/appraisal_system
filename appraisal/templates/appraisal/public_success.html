@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submitted — Opex Appraisal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0f1117; --surface: #181c27; --border: #2a2f45; --accent: #4f8ef7; --text: #e8eaf2; --muted: #8891aa; --success: #22c55e; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 48px 40px; text-align: center; max-width: 440px;
+  }
+  .icon { font-size: 3rem; margin-bottom: 16px; }
+  h1 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--success); margin-bottom: 12px; }
+  p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 8px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  a {
+    display: inline-block; padding: 10px 24px;
+    background: var(--accent); color: #fff; border-radius: 8px;
+    text-decoration: none; font-size: 0.85rem; font-weight: 500;
+    transition: background 0.15s;
+  }
+  a:hover { background: #3a7ee0; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="icon">✅</div>
+  <h1>Submitted!</h1>
+  <p>Your appraisal has been received and sent to your Team Lead for review.</p>
+  <p>You will be notified once your Team Lead and HR have reviewed it.</p>
+  <hr class="divider">
+  <a href="{% url 'public_appraisal' %}">Submit Another Appraisal</a>
+</div>
+</body>
+</html>

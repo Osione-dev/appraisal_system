@@ -1,0 +1,105 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}Review Appraisal — Opex Appraisal{% endblock %}
+{% block nav_lead %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Review: {{ appraisal.employee.get_full_name|default:appraisal.employee.username }}</div>
+    <div class="topbar-subtitle">{{ appraisal.period }} · Submitted {{ appraisal.submitted_to_lead_at|date:"d M Y" }}</div>
+  </div>
+  <a href="{% url 'lead_dashboard' %}" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="content">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+    <!-- Employee report (left) -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📄 Employee's Self-Report</div>
+            <div class="card-subtitle">{{ appraisal.employee.get_full_name|default:appraisal.employee.username }}</div>
+          </div>
+          {% if appraisal.employee.job_title %}<span class="badge badge-draft">{{ appraisal.employee.job_title }}</span>{% endif %}
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Overall Summary</div>
+          <div class="detail-block">{{ appraisal.self_summary }}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Key Achievements</div>
+          <div class="detail-block">{{ appraisal.achievements }}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Challenges Faced</div>
+          <div class="detail-block">{{ appraisal.challenges }}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-section-title">Goals for Next Period</div>
+          <div class="detail-block">{{ appraisal.goals_next_period }}</div>
+        </div>
+        {% if appraisal.training_needs %}
+        <div class="detail-section">
+          <div class="detail-section-title">Training Needs</div>
+          <div class="detail-block">{{ appraisal.training_needs }}</div>
+        </div>
+        {% endif %}
+        {% if appraisal.additional_comments %}
+        <div class="detail-section">
+          <div class="detail-section-title">Additional Comments</div>
+          <div class="detail-block">{{ appraisal.additional_comments }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Lead review form (right) -->
+    <div>
+      <div class="card" style="position:sticky;top:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">✍️ Your Review</div>
+            <div class="card-subtitle">Add your comments and a rating, then submit to HR</div>
+          </div>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-error" style="margin-bottom:16px;">Please fix the errors below.</div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label class="form-label">{{ form.lead_rating.label }}</label>
+            {{ form.lead_rating }}
+            {% if form.lead_rating.errors %}<div class="form-error">{{ form.lead_rating.errors|join:", " }}</div>{% endif %}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">{{ form.lead_comment.label }}</label>
+            {{ form.lead_comment }}
+            {% if form.lead_comment.errors %}<div class="form-error">{{ form.lead_comment.errors|join:", " }}</div>{% endif %}
+          </div>
+
+          <hr class="divider">
+
+          <p style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;">
+            Once you submit, this appraisal will be forwarded to HR. Make sure your review is complete.
+          </p>
+
+          <button type="submit" class="btn btn-success" style="width:100%"
+            onclick="return confirm('Submit this review to HR? This cannot be undone.')">
+            🚀 Submit to HR
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}Team Reviews — Opex Appraisal{% endblock %}
+{% block nav_lead %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">Team Reviews</div>
+    <div class="topbar-subtitle">Review and rate your team's appraisals</div>
+  </div>
+</div>
+<div class="content">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Team Members</div>
+      <div class="stat-value accent">{{ team_count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Awaiting Review</div>
+      <div class="stat-value warning">{{ pending_count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Appraisals</div>
+      <div class="stat-value" style="color:var(--muted)">{{ all_appraisals.count }}</div>
+    </div>
+  </div>
+
+  {% if pending %}
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🔔 Pending Your Review</div>
+        <div class="card-subtitle">These appraisals are waiting for your comments and rating</div>
+      </div>
+      <span class="badge badge-lead">{{ pending.count }} pending</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Period</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in pending %}
+          <tr>
+            <td>
+              <strong>{{ a.employee.get_full_name|default:a.employee.username }}</strong>
+              {% if a.employee.job_title %}<div class="text-muted text-sm">{{ a.employee.job_title }}</div>{% endif %}
+            </td>
+            <td>{{ a.period }}</td>
+            <td class="text-muted text-sm">{{ a.submitted_to_lead_at|date:"d M Y" }}</td>
+            <td>
+              <a href="{% url 'lead_review' a.pk %}" class="btn btn-sm btn-primary">Review →</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 All Team Appraisals</div>
+    </div>
+    {% if all_appraisals %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Period</th>
+            <th>Status</th>
+            <th>Rating</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in all_appraisals %}
+          <tr>
+            <td><strong>{{ a.employee.get_full_name|default:a.employee.username }}</strong></td>
+            <td>{{ a.period }}</td>
+            <td><span class="badge {{ a.status_badge_class }}">{{ a.get_status_display }}</span></td>
+            <td>
+              {% if a.lead_rating %}
+              <span class="rating-stars">{% for i in "12345" %}{% if forloop.counter <= a.lead_rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if a.status == 'pending_lead' %}
+              <a href="{% url 'lead_review' a.pk %}" class="btn btn-sm btn-primary">Review</a>
+              {% else %}
+              <a href="{% url 'lead_appraisal_detail' a.pk %}" class="btn btn-sm btn-outline">View</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No appraisals yet</h3>
+      <p>Your team members haven't submitted any appraisals yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

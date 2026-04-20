@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Opex Appraisal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117; --surface: #181c27; --border: #2a2f45;
+    --accent: #4f8ef7; --accent2: #7c5cfc; --text: #e8eaf2; --muted: #8891aa;
+    --danger: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-wrap {
+    display: flex;
+    width: 820px;
+    min-height: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .login-left {
+    flex: 1;
+    background: linear-gradient(145deg, #1a1f35 0%, #12162a 100%);
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .login-left::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .login-left::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(124,92,252,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .brand h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .brand p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .roles-list { list-style: none; }
+  .roles-list li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.82rem; color: var(--muted);
+  }
+  .roles-list li:last-child { border-bottom: none; }
+  .role-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-emp { background: var(--accent); }
+  .dot-lead { background: #f59e0b; }
+  .dot-hr { background: #22c55e; }
+  .login-right {
+    width: 360px;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-right h2 { font-size: 1.35rem; font-weight: 600; margin-bottom: 6px; }
+  .login-right p { font-size: 0.8rem; color: var(--muted); margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 0.78rem; font-weight: 500; margin-bottom: 6px; color: var(--muted); }
+  .form-control {
+    width: 100%; padding: 10px 14px;
+    background: #0f1117; border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    transition: border-color 0.15s;
+  }
+  .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
+  .btn {
+    width: 100%; padding: 11px; border-radius: 8px; font-size: 0.88rem; font-weight: 500;
+    cursor: pointer; border: none; background: var(--accent); color: #fff;
+    font-family: 'DM Sans', sans-serif; transition: background 0.15s; margin-top: 8px;
+  }
+  .btn:hover { background: #3a7ee0; }
+  .alert {
+    padding: 10px 14px; border-radius: 7px; font-size: 0.8rem;
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-left">
+    <div class="brand">
+      <h1> Opex Appraisal</h1>
+      <p>A streamlined performance review workflow for your entire organisation.</p>
+    </div>
+    <div>
+      <p style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Who uses this system</p>
+      <ul class="roles-list">
+        <li><span class="role-dot dot-emp"></span> <strong>Employees</strong> write their self-appraisal</li>
+        <li><span class="role-dot dot-lead"></span> <strong>Team Leads</strong> review and rate each report</li>
+        <li><span class="role-dot dot-hr"></span> <strong>HR</strong> makes the final decision</li>
+      </ul>
+    </div>
+  </div>
+  <div class="login-right">
+    <h2>Welcome back</h2>
+    <p>Sign in to access your appraisal dashboard.</p>
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn">Sign In</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

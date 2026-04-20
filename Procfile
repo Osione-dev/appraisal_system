@@ -1,0 +1,1 @@
+web: gunicorn appraisal_system.wsgi

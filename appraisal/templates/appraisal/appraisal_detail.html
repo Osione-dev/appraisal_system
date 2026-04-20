@@ -1,0 +1,247 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}Appraisal Detail — AppraisalPro{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">
+      {{ appraisal.employee.get_full_name|default:appraisal.employee.username }} — {{ appraisal.period }}
+    </div>
+    <div class="topbar-subtitle">
+      <span class="badge {{ appraisal.status_badge_class }}">{{ appraisal.get_status_display }}</span>
+      &nbsp;·&nbsp; Created {{ appraisal.created_at|date:"d M Y" }}
+    </div>
+  </div>
+
+  <!-- Back button destination depends on who is viewing -->
+  {% if viewer == 'lead' %}
+    <a href="{% url 'lead_dashboard' %}" class="btn btn-secondary">← Back</a>
+  {% elif viewer == 'hr' %}
+    <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">← Back</a>
+  {% else %}
+    <!-- Default: employee going back to their own dashboard -->
+    <a href="{% url 'employee_dashboard' %}" class="btn btn-secondary">← Back</a>
+  {% endif %}
+</div>
+
+<div class="content">
+
+  <!-- ── Workflow progress bar ── -->
+  <!-- Shows at a glance how far through the pipeline this appraisal is -->
+  <div class="card">
+    <div class="timeline">
+
+      <!-- Step 1: Employee submitted -->
+      <div class="timeline-step {% if appraisal.status != 'draft' %}done{% elif appraisal.status == 'draft' %}active{% endif %}">
+        <div class="step-dot">1</div>
+        <div class="step-label">
+          Employee Submitted
+          {% if appraisal.submitted_to_lead_at %}
+          <div style="font-size:0.65rem;color:var(--muted);">{{ appraisal.submitted_to_lead_at|date:"d M Y" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Step 2: Team Lead reviewed -->
+      <div class="timeline-step
+        {% if appraisal.status == 'pending_hr' or appraisal.status == 'reviewed' %}done
+        {% elif appraisal.status == 'pending_lead' %}active{% endif %}">
+        <div class="step-dot">2</div>
+        <div class="step-label">
+          Lead Reviewed
+          {% if appraisal.submitted_to_hr_at %}
+          <div style="font-size:0.65rem;color:var(--muted);">{{ appraisal.submitted_to_hr_at|date:"d M Y" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Step 3: HR finalised -->
+      <div class="timeline-step
+        {% if appraisal.status == 'reviewed' %}done
+        {% elif appraisal.status == 'pending_hr' %}active{% endif %}">
+        <div class="step-dot">3</div>
+        <div class="step-label">
+          HR Reviewed
+          {% if appraisal.reviewed_at %}
+          <div style="font-size:0.65rem;color:var(--muted);">{{ appraisal.reviewed_at|date:"d M Y" }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Layout: two-column on wide screens, single column on small ── -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+
+    <!-- LEFT COLUMN: Employee's self-report (always visible to all roles) -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📄 Employee Self-Report</div>
+            <div class="card-subtitle">
+              Written by {{ appraisal.employee.get_full_name|default:appraisal.employee.username }}
+              {% if appraisal.employee.job_title %} · {{ appraisal.employee.job_title }}{% endif %}
+            </div>
+          </div>
+          {% if appraisal.employee.department %}
+          <span class="badge badge-draft">{{ appraisal.employee.department }}</span>
+          {% endif %}
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Overall Performance Summary</div>
+          <div class="detail-block">{{ appraisal.self_summary }}</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Key Achievements</div>
+          <div class="detail-block">{{ appraisal.achievements }}</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Challenges Faced</div>
+          <div class="detail-block">{{ appraisal.challenges }}</div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">Goals for Next Period</div>
+          <div class="detail-block">{{ appraisal.goals_next_period }}</div>
+        </div>
+
+        <!-- Optional fields — only rendered if the employee filled them in -->
+        {% if appraisal.training_needs %}
+        <div class="detail-section">
+          <div class="detail-section-title">Training & Development Needs</div>
+          <div class="detail-block">{{ appraisal.training_needs }}</div>
+        </div>
+        {% endif %}
+
+        {% if appraisal.additional_comments %}
+        <div class="detail-section">
+          <div class="detail-section-title">Additional Comments</div>
+          <div class="detail-block">{{ appraisal.additional_comments }}</div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Review sections (lead comment + HR comment) -->
+    <div>
+
+      <!-- ── Team Lead Review ──
+           Visible to all roles, but only has content once the lead has reviewed it -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">👤 Team Lead Review</div>
+            <div class="card-subtitle">
+              {% if appraisal.reviewed_by_lead %}
+                Reviewed by {{ appraisal.reviewed_by_lead.get_full_name|default:appraisal.reviewed_by_lead.username }}
+                on {{ appraisal.submitted_to_hr_at|date:"d M Y" }}
+              {% else %}
+                Awaiting team lead review
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Show the star rating if available -->
+          {% if appraisal.lead_rating %}
+          <div>
+            <span class="rating-stars">
+              {% for i in "12345" %}
+                {% if forloop.counter <= appraisal.lead_rating %}★{% else %}☆{% endif %}
+              {% endfor %}
+            </span>
+            <div class="text-muted text-sm" style="text-align:right;">{{ appraisal.get_lead_rating_display }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if appraisal.lead_comment %}
+          <div class="detail-section">
+            <div class="detail-section-title">Lead's Comments</div>
+            <div class="detail-block">{{ appraisal.lead_comment }}</div>
+          </div>
+        {% else %}
+          <!-- Placeholder shown before the lead has written anything -->
+          <div class="empty-state" style="padding:24px 0;">
+            <div class="empty-icon" style="font-size:1.5rem;">⏳</div>
+            <p>Team lead has not yet submitted their review.</p>
+          </div>
+        {% endif %}
+
+        <!-- Lead can go directly to the review form from this detail page -->
+        {% if viewer == 'lead' and appraisal.status == 'pending_lead' %}
+        <a href="{% url 'lead_review' appraisal.pk %}" class="btn btn-primary btn-sm">
+          Write Review →
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- ── HR Review ──
+           Only rendered for leads and HR; employees don't see this section
+           until the appraisal is fully reviewed -->
+      {% if viewer == 'hr' or viewer == 'lead' or appraisal.status == 'reviewed' %}
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🏢 HR Review</div>
+            <div class="card-subtitle">
+              {% if appraisal.reviewed_by_hr %}
+                Finalised by {{ appraisal.reviewed_by_hr.get_full_name|default:appraisal.reviewed_by_hr.username }}
+                on {{ appraisal.reviewed_at|date:"d M Y" }}
+              {% else %}
+                Awaiting HR review
+              {% endif %}
+            </div>
+          </div>
+          {% if appraisal.status == 'reviewed' %}
+          <span class="badge badge-reviewed">Finalised</span>
+          {% endif %}
+        </div>
+
+        {% if appraisal.hr_comment or appraisal.hr_decision %}
+
+          {% if appraisal.hr_decision %}
+          <div class="detail-section">
+            <div class="detail-section-title">Decision / Outcome</div>
+            <!-- Highlight the decision prominently since it's the key result -->
+            <div style="font-size:0.95rem;font-weight:600;color:var(--success);
+                        background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);
+                        border-radius:8px;padding:12px 16px;">
+              {{ appraisal.hr_decision }}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if appraisal.hr_comment %}
+          <div class="detail-section">
+            <div class="detail-section-title">HR Comments</div>
+            <div class="detail-block">{{ appraisal.hr_comment }}</div>
+          </div>
+          {% endif %}
+
+        {% else %}
+          <div class="empty-state" style="padding:24px 0;">
+            <div class="empty-icon" style="font-size:1.5rem;">⏳</div>
+            <p>HR has not yet submitted their review.</p>
+          </div>
+        {% endif %}
+
+        <!-- HR can go directly to the review form from this detail page -->
+        {% if viewer == 'hr' and appraisal.status == 'pending_hr' %}
+        <a href="{% url 'hr_review' appraisal.pk %}" class="btn btn-primary btn-sm">
+          Write HR Review →
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

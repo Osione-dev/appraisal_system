@@ -1,0 +1,92 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}My Dashboard — AppraisalPro{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+  <div>
+    <div class="topbar-title">My Appraisals</div>
+    <div class="topbar-subtitle">Track your performance reviews</div>
+  </div>
+  <a href="{% url 'appraisal_create' %}" class="btn btn-primary">+ New Appraisal</a>
+</div>
+<div class="content">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total</div>
+      <div class="stat-value accent">{{ appraisals.count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Drafts</div>
+      <div class="stat-value" style="color:var(--muted)">{{ draft_count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In Review</div>
+      <div class="stat-value warning">{{ pending_count }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value success">{{ reviewed_count }}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Appraisal History</div>
+        <div class="card-subtitle">All your submitted and draft reports</div>
+      </div>
+    </div>
+
+    {% if appraisals %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Lead Rating</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in appraisals %}
+          <tr>
+            <td>
+              <strong>{{ a.period }}</strong>
+            </td>
+            <td><span class="badge {{ a.status_badge_class }}">{{ a.get_status_display }}</span></td>
+            <td class="text-muted text-sm">
+              {% if a.submitted_to_lead_at %}{{ a.submitted_to_lead_at|date:"d M Y" }}{% else %}—{% endif %}
+            </td>
+            <td>
+              {% if a.lead_rating %}
+              <span class="rating-stars">{% for i in "12345" %}{% if forloop.counter <= a.lead_rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="flex gap-2">
+              {% if a.status == 'draft' %}
+              <a href="{% url 'appraisal_edit' a.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+              {% else %}
+              <a href="{% url 'appraisal_view' a.pk %}" class="btn btn-sm btn-outline">View</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No appraisals yet</h3>
+      <p>Start by creating your first self-appraisal report.</p>
+      <a href="{% url 'appraisal_create' %}" class="btn btn-primary">Create Appraisal</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
