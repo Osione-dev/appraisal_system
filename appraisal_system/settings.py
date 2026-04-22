@@ -30,8 +30,11 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Add this line below
-CSRF_TRUSTED_ORIGINS = ['https://your-app-name.up.railway.app']
-
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'https://web-production-cea8c.up.railway.app',  
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -130,3 +133,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Also add this line to fix origin checking
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
