@@ -5,7 +5,11 @@
 <div class="topbar">
   <div>
     <div class="topbar-title">
-      {{ appraisal.employee.get_full_name|default:appraisal.employee.username }} — {{ appraisal.period }}
+       {% if a.reviewed_by_lead %}
+          {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
+        {% else %}
+          -
+        {% endif %}
     </div>
     <div class="topbar-subtitle">
       <span class="badge {{ appraisal.status_badge_class }}">{{ appraisal.get_status_display }}</span>
