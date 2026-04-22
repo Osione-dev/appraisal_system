@@ -5,7 +5,14 @@
 {% block content %}
 <div class="topbar">
   <div>
-    <div class="topbar-title">HR Review: {{ appraisal.employee.get_full_name|default:appraisal.employee.username }}</div>
+    <div class="topbar-title">HR Review: 
+        {% if a.reviewed_by_lead %}
+          {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
+        {% else %}
+          -
+        {% endif %}
+
+    </div>
     <div class="topbar-subtitle">{{ appraisal.period }} · Lead reviewed {{ appraisal.submitted_to_hr_at|date:"d M Y" }}</div>
   </div>
   <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">← Back</a>
