@@ -85,7 +85,11 @@
           <div>
             <div class="card-title">📄 Employee Self-Report</div>
             <div class="card-subtitle">
-              Written by {{ appraisal.employee.get_full_name|default:appraisal.employee.username }}
+              Written by  {% if a.reviewed_by_lead %}
+                  {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
+                {% else %}
+                  -
+                {% endif %}
               {% if appraisal.employee.job_title %} · {{ appraisal.employee.job_title }}{% endif %}
             </div>
           </div>
