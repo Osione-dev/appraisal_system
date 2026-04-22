@@ -1,5 +1,5 @@
 {% extends 'appraisal/base.html' %}
-{% block title %}Team Reviews — Opex Appraisal{% endblock %}
+{% block title %}Team Reviews — AppraisalPro{% endblock %}
 {% block nav_lead %}active{% endblock %}
 
 {% block content %}
@@ -9,8 +9,10 @@
     <div class="topbar-subtitle">Review and rate your team's appraisals</div>
   </div>
 </div>
+
 <div class="content">
 
+  <!-- Summary stat cards -->
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Team Members</div>
@@ -26,6 +28,7 @@
     </div>
   </div>
 
+  <!-- Pending reviews section -->
   {% if pending %}
   <div class="card">
     <div class="card-header">
@@ -40,6 +43,7 @@
         <thead>
           <tr>
             <th>Employee</th>
+            <th>Department</th>
             <th>Period</th>
             <th>Submitted</th>
             <th>Action</th>
@@ -50,16 +54,42 @@
           <tr>
             <td>
               <strong>
-                {% if a.reviewed_by_lead %}
-                  {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
+                <!-- 
+                  Public submissions have no employee account.
+                  Their name is stored in employee_name instead.
+                  We check which one to use here.
+                -->
+                {% if a.employee %}
+                  {{ a.employee.get_full_name|default:a.employee.username }}
                 {% else %}
-                  -
+                  {{ a.employee_name|default:"Unknown" }}
                 {% endif %}
               </strong>
-              {% if a.employee.job_title %}<div class="text-muted text-sm">{{ a.employee.job_title }}</div>{% endif %}
+              {% if a.employee %}
+                {% if a.employee.job_title %}
+                <div class="text-muted text-sm">{{ a.employee.job_title }}</div>
+                {% endif %}
+              {% endif %}
             </td>
+
+            <td class="text-muted text-sm">
+              {% if a.employee %}
+                {{ a.employee.department|default:"—" }}
+              {% else %}
+                {{ a.employee_department|default:"—" }}
+              {% endif %}
+            </td>
+
             <td>{{ a.period }}</td>
-            <td class="text-muted text-sm">{{ a.submitted_to_lead_at|date:"d M Y" }}</td>
+
+            <td class="text-muted text-sm">
+              {% if a.submitted_to_lead_at %}
+                {{ a.submitted_to_lead_at|date:"d M Y" }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+
             <td>
               <a href="{% url 'lead_review' a.pk %}" class="btn btn-sm btn-primary">Review →</a>
             </td>
@@ -71,6 +101,7 @@
   </div>
   {% endif %}
 
+  <!-- All appraisals history table -->
   <div class="card">
     <div class="card-header">
       <div class="card-title">📋 All Team Appraisals</div>
@@ -90,14 +121,36 @@
         <tbody>
           {% for a in all_appraisals %}
           <tr>
-            <td><strong>{{ a.employee.get_full_name|default:a.employee.username }}</strong></td>
+            <td>
+              <strong>
+                {% if a.employee %}
+                  {{ a.employee.get_full_name|default:a.employee.username }}
+                {% else %}
+                  {{ a.employee_name|default:"Unknown" }}
+                {% endif %}
+              </strong>
+            </td>
+
             <td>{{ a.period }}</td>
-            <td><span class="badge {{ a.status_badge_class }}">{{ a.get_status_display }}</span></td>
+
+            <td>
+              <span class="badge {{ a.status_badge_class }}">
+                {{ a.get_status_display }}
+              </span>
+            </td>
+
             <td>
               {% if a.lead_rating %}
-              <span class="rating-stars">{% for i in "12345" %}{% if forloop.counter <= a.lead_rating %}★{% else %}☆{% endif %}{% endfor %}</span>
-              {% else %}—{% endif %}
+              <span class="rating-stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= a.lead_rating %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </span>
+              {% else %}
+              —
+              {% endif %}
             </td>
+
             <td>
               {% if a.status == 'pending_lead' %}
               <a href="{% url 'lead_review' a.pk %}" class="btn btn-sm btn-primary">Review</a>
@@ -114,7 +167,7 @@
     <div class="empty-state">
       <div class="empty-icon">📭</div>
       <h3>No appraisals yet</h3>
-      <p>Your team members haven't submitted any appraisals yet.</p>
+      <p>No appraisals have been submitted yet.</p>
     </div>
     {% endif %}
   </div>

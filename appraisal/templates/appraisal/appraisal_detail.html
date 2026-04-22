@@ -85,7 +85,13 @@
           <div>
             <div class="card-title">📄 Employee Self-Report</div>
             <div class="card-subtitle">
-              Written by  {% if a.reviewed_by_lead %}
+              Written by  
+              {% if a.employee %}
+                {{ a.employee.get_full_name|default:a.employee.username }}
+              {% else %}
+                {{ a.employee_name|default:"Unknown" }}
+              {% endif %}
+              {% if a.reviewed_by_lead %}
                   {{ a.reviewed_by_lead.get_full_name|default:a.reviewed_by_lead.username }}
                 {% else %}
                   -
