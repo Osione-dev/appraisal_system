@@ -28,8 +28,12 @@
         <div class="card-header">
           <div>
             <div class="card-title">📄 Employee Self-Report</div>
-            <div class="card-subtitle">{{ appraisal.employee.get_full_name|default:appraisal.employee.username }}
-              {% if appraisal.employee.job_title %} · {{ appraisal.employee.job_title }}{% endif %}
+            <div class="card-subtitle">
+              {% if appraisal.employee %}
+                {{ appraisal.employee.username }}
+              {% else %}
+                {{ appraisal.employee_name|default: "Unknown"}}
+              {% endif %}
             </div>
           </div>
           {% if appraisal.employee.department %}
