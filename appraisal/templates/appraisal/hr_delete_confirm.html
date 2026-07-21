@@ -1,0 +1,71 @@
+{% extends 'appraisal/base.html' %}
+{% block title %}Delete Appraisal — AppraisalPro{% endblock %}
+{% block nav_hr %}active{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div>
+        <div class="topbar-title">Delete Appraisal</div>
+        <div class="topbar-subtitle">This action cannot be undone</div>
+    </div>
+    <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="content">
+    <div style="max-width:500px;margin:0 auto;">
+        <div class="card" style="text-align:center;">
+
+            <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
+
+            <h2 style="font-size:1.2rem;margin-bottom:12px;">
+                Are you sure you want to delete this appraisal?
+            </h2>
+
+            <div style="background:var(--surface2);border:1px solid var(--border);
+                        border-radius:8px;padding:16px;margin-bottom:20px;text-align:left;">
+                <div style="font-size:0.78rem;color:var(--muted);margin-bottom:4px;">Employee</div>
+                <div style="font-weight:600;">{{ appraisal.display_name }}</div>
+
+                <div style="font-size:0.78rem;color:var(--muted);margin-top:10px;margin-bottom:4px;">Department</div>
+                <div>
+                    {% if appraisal.employee %}
+                        {{ appraisal.employee.department|default:"—" }}
+                    {% else %}
+                        {{ appraisal.employee_department|default:"—" }}
+                    {% endif %}
+                </div>
+
+                <div style="font-size:0.78rem;color:var(--muted);margin-top:10px;margin-bottom:4px;">Period</div>
+                <div>{{ appraisal.period }}</div>
+
+                <div style="font-size:0.78rem;color:var(--muted);margin-top:10px;margin-bottom:4px;">Status</div>
+                <span class="badge {{ appraisal.status_badge_class }}">
+                    {{ appraisal.get_status_display }}
+                </span>
+
+                {% if appraisal.reviewed_by_lead %}
+                <div style="font-size:0.78rem;color:var(--muted);margin-top:10px;margin-bottom:4px;">Reviewed By Lead</div>
+                <div>{{ appraisal.reviewed_by_lead.get_full_name|default:appraisal.reviewed_by_lead.username }}</div>
+                {% endif %}
+            </div>
+
+            <p style="color:var(--muted);font-size:0.83rem;margin-bottom:24px;">
+                This will permanently delete the appraisal and all
+                associated review data. This action cannot be reversed.
+            </p>
+
+            <form method="post" style="display:flex;gap:12px;justify-content:center;">
+                {% csrf_token %}
+                <a href="{% url 'hr_dashboard' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn"
+                    style="background:var(--danger);color:#fff;">
+                    Yes, Delete Appraisal
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

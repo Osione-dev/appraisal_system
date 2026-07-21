@@ -33,7 +33,7 @@
   <div class="card">
     <div class="card-header">
       <div>
-        <div class="card-title">🔔 Pending Your Review</div>
+        <div class="card-title"> Pending Your Review</div>
         <div class="card-subtitle">These appraisals are waiting for your comments and rating</div>
       </div>
       <span class="badge badge-lead">{{ pending.count }} pending</span>
@@ -104,7 +104,7 @@
   <!-- All appraisals history table -->
   <div class="card">
     <div class="card-header">
-      <div class="card-title">📋 All Team Appraisals</div>
+      <div class="card-title">All Team Appraisals</div>
     </div>
     {% if all_appraisals %}
     <div class="table-wrap">
@@ -158,6 +158,20 @@
               <a href="{% url 'lead_appraisal_detail' a.pk %}" class="btn btn-sm btn-outline">View</a>
               {% endif %}
             </td>
+            <td style="display:flex;gap:6px;">
+              {% if a.status == 'pending_lead' %}
+              <a href="{% url 'lead_review' a.pk %}" class="btn btn-sm btn-primary">Review</a>
+              {% else %}
+              <a href="{% url 'lead_appraisal_detail' a.pk %}" class="btn btn-sm btn-outline">View</a>
+              {% endif %}
+
+              <!-- Delete button — only shows for team leads -->
+              <a href="{% url 'lead_delete_appraisal' a.pk %}"
+                class="btn btn-sm"
+                style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);">
+                🗑 Delete
+              </a>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -165,7 +179,6 @@
     </div>
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">📭</div>
       <h3>No appraisals yet</h3>
       <p>No appraisals have been submitted yet.</p>
     </div>

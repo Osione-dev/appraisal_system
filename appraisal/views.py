@@ -9,6 +9,7 @@ from .models import CustomUser, Appraisal
 from .forms import PublicAppraisalForm, TeamLeadReviewForm, HRReviewForm
 
 
+
 # =============================================================================
 # FILE: appraisal/views.py
 # WHAT THIS FILE DOES:
@@ -251,7 +252,7 @@ def hr_dashboard(request):
     # select_related fetches related user data in ONE database query instead of many.
     # Without it Django would make a separate query for every row in the table.
     appraisals = Appraisal.objects.select_related('employee', 'reviewed_by_lead')
-
+    
     # Apply the status filter if one was chosen
     if status_filter:
         appraisals = appraisals.filter(status=status_filter)
@@ -316,4 +317,45 @@ def hr_appraisal_detail(request, pk):
     return render(request, 'appraisal/appraisal_detail.html', {
         'appraisal': appraisal,
         'viewer': 'hr',
+    })
+
+@login_required
+def lead_delete_appraisal(request, pk):
+    # Only team leads can access this view
+    if not request.user.is_team_lead:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    # Fetch the appraisal — 404 if it doesn't exist
+    appraisal = get_object_or_404(Appraisal, pk=pk)
+
+    if request.method == 'POST':
+        # Store the name before deleting so we can show it in the message
+        name = appraisal.display_name
+        appraisal.delete()  # permanently removes the record from the database
+        messages.success(request, f'Appraisal for {name} has been deleted.')
+        return redirect('lead_dashboard')
+
+    # GET request — show a confirmation page before deleting
+    return render(request, 'appraisal/lead_delete_confirm.html', {
+        'appraisal': appraisal
+    })
+
+@login_required
+def hr_delete_appraisal(request, pk):
+    # Only HR can access this view
+    if not request.user.is_hr:
+        messages.error(request, 'Access denied.')
+        return redirect('dashboard')
+
+    appraisal = get_object_or_404(Appraisal, pk=pk)
+
+    if request.method == 'POST':
+        name = appraisal.display_name
+        appraisal.delete()
+        messages.success(request, f'Appraisal for {name} has been deleted.')
+        return redirect('hr_dashboard')
+
+    return render(request, 'appraisal/hr_delete_confirm.html', {
+        'appraisal': appraisal
     })

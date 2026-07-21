@@ -24,8 +24,11 @@ urlpatterns = [
     path('',             views.login_view,      name='login'),
     path('login/',       views.login_view,      name='login'),
     path('logout/',      views.logout_view,     name='logout'),
-    path('submit/',      views.public_appraisal, name='public_appraisal'),
+    path('submit/', views.public_appraisal, name='public_appraisal'),
     path('submit/done/', views.public_success,  name='public_success'),
+
+
+
 
     # ── Dashboard router ──
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -42,4 +45,6 @@ urlpatterns = [
 
     path('submit/', views.public_appraisal, name='public_appraisal'),
     path('submit/done/', views.public_success, name='public_success'),
+    path('lead/appraisal/<int:pk>/delete/', views.lead_delete_appraisal, name='lead_delete_appraisal'),
+    path('hr/appraisal/<int:pk>/delete/', views.hr_delete_appraisal, name='hr_delete_appraisal'),
 ]
