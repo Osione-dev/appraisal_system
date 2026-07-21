@@ -72,41 +72,35 @@ def public_appraisal(request):
     Saves the submitted appraisal on POST and redirects to a thank-you page.
     No login required — anyone with the link can submit.
     """
+def public_appraisal(request):
     if request.method == 'POST':
-        # Bind the form to the submitted data so we can validate it
         form = PublicAppraisalForm(request.POST)
-
         if form.is_valid():
-            # form.cleaned_data is a dictionary of all the validated field values.
-            # We use .get() for optional fields so we get an empty string if blank.
-
-            # Combine first and last name into one full name string
             full_name = (
                 form.cleaned_data['first_name'].strip() + ' ' +
                 form.cleaned_data['last_name'].strip()
             )
-
-            # Create and save the Appraisal record in the database
             Appraisal.objects.create(
-                employee            = None,       # no user account for public submissions
-                employee_name       = full_name,
-                employee_department = form.cleaned_data['department'],
-                period              = form.cleaned_data['period'],
-                self_summary        = form.cleaned_data['self_summary'],
-                achievements        = form.cleaned_data['achievements'],
-                challenges          = form.cleaned_data['challenges'],
-                goals_next_period   = form.cleaned_data['goals_next_period'],
-                training_needs      = form.cleaned_data.get('training_needs', ''),
-                additional_comments = form.cleaned_data.get('additional_comments', ''),
-                status              = Appraisal.STATUS_PENDING_LEAD,  # goes to lead queue
+                employee             = None,
+                employee_name        = full_name,
+                employee_department  = form.cleaned_data['department'],
+                period               = form.cleaned_data['period'],
+                # Save all 9 rating scores
+                score_punctuality    = form.cleaned_data['score_punctuality'],
+                score_quality        = form.cleaned_data['score_quality'],
+                score_teamwork       = form.cleaned_data['score_teamwork'],
+                score_communication  = form.cleaned_data['score_communication'],
+                score_deadlines      = form.cleaned_data['score_deadlines'],
+                score_problem_solving = form.cleaned_data['score_problem_solving'],
+                score_initiative     = form.cleaned_data['score_initiative'],
+                score_professionalism = form.cleaned_data['score_professionalism'],
+                score_adherence      = form.cleaned_data['score_adherence'],
+                additional_comments  = form.cleaned_data.get('additional_comments', ''),
+                status               = Appraisal.STATUS_PENDING_LEAD,
                 submitted_to_lead_at = timezone.now(),
             )
-
-            # Send the employee to a thank-you page after successful submission
             return redirect('public_success')
-
     else:
-        # GET request — show a blank form
         form = PublicAppraisalForm()
 
     return render(request, 'appraisal/public_form.html', {'form': form})

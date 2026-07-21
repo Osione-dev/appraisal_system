@@ -9,45 +9,31 @@
   :root {
     --bg: #0f1117; --surface: #181c27; --border: #2a2f45;
     --accent: #4f8ef7; --text: #e8eaf2; --muted: #8891aa;
-    --success: #22c55e; --danger: #ef4444;
+    --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 40px 20px;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; padding: 40px 20px;
   }
-  .page-wrap { max-width: 720px; margin: 0 auto; }
+  .page-wrap { max-width: 760px; margin: 0 auto; }
 
-  /* ── Header ── */
+  /* Header */
   .page-header { text-align: center; margin-bottom: 36px; }
-  .page-header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem; color: var(--accent); margin-bottom: 8px;
-  }
-  .page-header p { color: var(--muted); font-size: 0.9rem; }
+  .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
+  .page-header p { color: var(--muted); font-size: 0.88rem; }
 
-  /* ── Cards ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 20px;
-  }
-  .card-title {
-    font-size: 1rem; font-weight: 600;
-    margin-bottom: 18px; padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; }
+  .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+  .card-subtitle { font-size: 0.78rem; color: var(--muted); margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 
-  /* ── Form fields ── */
+  /* Form */
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .form-group { margin-bottom: 18px; }
-  .form-label { display: block; font-size: 0.83rem; font-weight: 500; margin-bottom: 6px; }
-  .form-hint { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+  .form-label { display: block; font-size: 0.83rem; font-weight: 500; margin-bottom: 4px; }
+  .form-hint { font-size: 0.73rem; color: var(--muted); margin-bottom: 6px; }
   .form-control {
     width: 100%; padding: 10px 13px;
     background: var(--bg); border: 1px solid var(--border);
@@ -57,37 +43,65 @@
   }
   .form-control:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
   .form-control::placeholder { color: var(--muted); }
-  .form-error { font-size: 0.75rem; color: var(--danger); margin-top: 5px; }
-  .optional { color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+  .form-error { font-size: 0.73rem; color: var(--danger); margin-top: 5px; }
 
-  /* ── Alert ── */
+  /* Rating row — category label on left, dropdown on right */
+  .rating-row {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-info { flex: 1; }
+  .rating-number {
+    font-size: 0.68rem; color: var(--accent); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;
+  }
+  .rating-label { font-size: 0.88rem; font-weight: 500; margin-bottom: 3px; }
+  .rating-hint { font-size: 0.73rem; color: var(--muted); }
+  .rating-select { width: 200px; flex-shrink: 0; }
+
+  /* Score legend */
+  .legend {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.15);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;
+  }
+  .legend-item { font-size: 0.73rem; color: var(--muted); }
+  .legend-item strong { color: var(--text); }
+
+  /* Alert */
   .alert {
     padding: 12px 16px; border-radius: 8px; font-size: 0.83rem;
     margin-bottom: 20px; background: rgba(239,68,68,0.1);
     border: 1px solid rgba(239,68,68,0.25); color: #f87171;
   }
 
-  /* ── Buttons ── */
+  /* Button */
   .btn {
-    padding: 11px 28px; border-radius: 8px; font-size: 0.88rem; font-weight: 500;
+    padding: 12px 32px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
     cursor: pointer; border: none; font-family: 'DM Sans', sans-serif;
-    transition: background 0.15s; text-decoration: none; display: inline-block;
+    background: var(--accent); color: #fff; transition: background 0.15s;
   }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #3a7ee0; }
+  .btn:hover { background: #3a7ee0; }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .rating-row { flex-direction: column; }
+    .rating-select { width: 100%; }
+  }
 </style>
 </head>
 <body>
 <div class="page-wrap">
 
   <div class="page-header">
-    <h1>Opex Appraisal</h1>
-    <p>Fill in your self-appraisal below. All fields are required unless marked optional.</p>
+    <h1>AppraisalPro</h1>
+    <p>Employee Self-Appraisal Form — rate yourself honestly on each category below.</p>
   </div>
 
   {% if form.errors %}
   <div class="alert">
-    Please fix the errors highlighted below before submitting.
+    Please fix the errors below before submitting.
   </div>
   {% endif %}
 
@@ -97,6 +111,7 @@
     <!-- ── Personal Details ── -->
     <div class="card">
       <div class="card-title">👤 Your Details</div>
+      <div class="card-subtitle">Fill in your personal information before rating yourself.</div>
 
       <div class="form-row">
         <div class="form-group">
@@ -133,81 +148,157 @@
       </div>
     </div>
 
-    <!-- ── Self Evaluation ── -->
+    <!-- ── Self Assessment ── -->
     <div class="card">
-      <div class="card-title">📝 Self Evaluation</div>
+      <div class="card-title">📊 Self-Assessment</div>
+      <div class="card-subtitle">Rate yourself honestly on each category. All ratings are required.</div>
 
-      <div class="form-group">
-        <label class="form-label">{{ form.self_summary.label }}</label>
-        <div class="form-hint">{{ form.self_summary.help_text }}</div>
-        {{ form.self_summary }}
-        {% if form.self_summary.errors %}
-        <div class="form-error">{{ form.self_summary.errors|join:", " }}</div>
-        {% endif %}
+      <!-- Score legend -->
+      <div class="legend">
+        <span class="legend-item"><strong>5</strong> = Excellent</span>
+        <span class="legend-item"><strong>4</strong> = Good</span>
+        <span class="legend-item"><strong>3</strong> = Average</span>
+        <span class="legend-item"><strong>2</strong> = Below Average</span>
+        <span class="legend-item"><strong>1</strong> = Poor</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">{{ form.achievements.label }}</label>
-        <div class="form-hint">{{ form.achievements.help_text }}</div>
-        {{ form.achievements }}
-        {% if form.achievements.errors %}
-        <div class="form-error">{{ form.achievements.errors|join:", " }}</div>
-        {% endif %}
+      <!-- Category 1 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 1</div>
+          <div class="rating-label">{{ form.score_punctuality.label }}</div>
+          <div class="rating-hint">{{ form.score_punctuality.help_text }}</div>
+          {% if form.score_punctuality.errors %}
+          <div class="form-error">{{ form.score_punctuality.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_punctuality }}</div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">{{ form.challenges.label }}</label>
-        <div class="form-hint">{{ form.challenges.help_text }}</div>
-        {{ form.challenges }}
-        {% if form.challenges.errors %}
-        <div class="form-error">{{ form.challenges.errors|join:", " }}</div>
-        {% endif %}
+      <!-- Category 2 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 2</div>
+          <div class="rating-label">{{ form.score_quality.label }}</div>
+          <div class="rating-hint">{{ form.score_quality.help_text }}</div>
+          {% if form.score_quality.errors %}
+          <div class="form-error">{{ form.score_quality.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_quality }}</div>
       </div>
+
+      <!-- Category 3 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 3</div>
+          <div class="rating-label">{{ form.score_teamwork.label }}</div>
+          <div class="rating-hint">{{ form.score_teamwork.help_text }}</div>
+          {% if form.score_teamwork.errors %}
+          <div class="form-error">{{ form.score_teamwork.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_teamwork }}</div>
+      </div>
+
+      <!-- Category 4 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 4</div>
+          <div class="rating-label">{{ form.score_communication.label }}</div>
+          <div class="rating-hint">{{ form.score_communication.help_text }}</div>
+          {% if form.score_communication.errors %}
+          <div class="form-error">{{ form.score_communication.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_communication }}</div>
+      </div>
+
+      <!-- Category 5 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 5</div>
+          <div class="rating-label">{{ form.score_deadlines.label }}</div>
+          <div class="rating-hint">{{ form.score_deadlines.help_text }}</div>
+          {% if form.score_deadlines.errors %}
+          <div class="form-error">{{ form.score_deadlines.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_deadlines }}</div>
+      </div>
+
+      <!-- Category 6 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 6</div>
+          <div class="rating-label">{{ form.score_problem_solving.label }}</div>
+          <div class="rating-hint">{{ form.score_problem_solving.help_text }}</div>
+          {% if form.score_problem_solving.errors %}
+          <div class="form-error">{{ form.score_problem_solving.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_problem_solving }}</div>
+      </div>
+
+      <!-- Category 7 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 7</div>
+          <div class="rating-label">{{ form.score_initiative.label }}</div>
+          <div class="rating-hint">{{ form.score_initiative.help_text }}</div>
+          {% if form.score_initiative.errors %}
+          <div class="form-error">{{ form.score_initiative.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_initiative }}</div>
+      </div>
+
+      <!-- Category 8 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 8</div>
+          <div class="rating-label">{{ form.score_professionalism.label }}</div>
+          <div class="rating-hint">{{ form.score_professionalism.help_text }}</div>
+          {% if form.score_professionalism.errors %}
+          <div class="form-error">{{ form.score_professionalism.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_professionalism }}</div>
+      </div>
+
+      <!-- Category 9 -->
+      <div class="rating-row">
+        <div class="rating-info">
+          <div class="rating-number">Category 9</div>
+          <div class="rating-label">{{ form.score_adherence.label }}</div>
+          <div class="rating-hint">{{ form.score_adherence.help_text }}</div>
+          {% if form.score_adherence.errors %}
+          <div class="form-error">{{ form.score_adherence.errors|join:", " }}</div>
+          {% endif %}
+        </div>
+        <div class="rating-select">{{ form.score_adherence }}</div>
+      </div>
+
     </div>
 
-    <!-- ── Looking Ahead ── -->
+    <!-- ── Additional Comments ── -->
     <div class="card">
-      <div class="card-title">🎯 Looking Ahead</div>
-
-      <div class="form-group">
-        <label class="form-label">{{ form.goals_next_period.label }}</label>
-        <div class="form-hint">{{ form.goals_next_period.help_text }}</div>
-        {{ form.goals_next_period }}
-        {% if form.goals_next_period.errors %}
-        <div class="form-error">{{ form.goals_next_period.errors|join:", " }}</div>
-        {% endif %}
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">
-          {{ form.training_needs.label }}
-          <span class="optional">(optional)</span>
-        </label>
-        {{ form.training_needs }}
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">
-          {{ form.additional_comments.label }}
-          <span class="optional">(optional)</span>
-        </label>
+      <div class="card-title">💬 Additional Comments <span style="font-weight:400;color:var(--muted);font-size:0.8rem;">(optional)</span></div>
+      <div class="form-group" style="margin-bottom:0;">
         {{ form.additional_comments }}
       </div>
     </div>
 
     <!-- ── Submit ── -->
     <div class="card" style="text-align:center;">
-      <p style="color:var(--muted);font-size:0.83rem;margin-bottom:16px;">
-        By submitting you confirm this report is accurate. It will be sent to your Team Lead for review.
+      <p style="color:var(--muted);font-size:0.83rem;margin-bottom:18px;">
+        By submitting you confirm these ratings are an honest reflection of your performance.
+        Your report will be sent to your Team Lead for review.
       </p>
-      <button type="submit" class="btn btn-primary">
-        Submit Appraisal →
-      </button>
+      <button type="submit" class="btn">Submit Appraisal →</button>
     </div>
 
   </form>
 </div>
-<footer style="text-align:center;margin-top:40px;color:var(--muted);font-size:0.75rem;">
-  &copy; {{ current_year }} Opex Appraisal System. All rights reserved Joseph Adeokhor Osione>.
 </body>
 </html>

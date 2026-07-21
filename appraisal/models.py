@@ -101,130 +101,173 @@ class Appraisal(models.Model):
         (STATUS_REVIEWED,     'Reviewed'),
     ]
 
-    # ── Rating scale used by the Team Lead ──
-    RATING_CHOICES = [
-        (1, '1 - Needs Improvement'),
-        (2, '2 - Below Expectations'),
-        (3, '3 - Meets Expectations'),
-        (4, '4 - Exceeds Expectations'),
-        (5, '5 - Outstanding'),
+    # Rating scale used for all 9 self-assessment criteria
+    SCORE_CHOICES = [
+        (5, '5 - Excellent'),
+        (4, '4 - Good'),
+        (3, '3 - Average'),
+        (2, '2 - Below Average'),
+        (1, '1 - Poor'),
     ]
-
+ 
+    # Rating scale used by the Team Lead
+    RATING_CHOICES = [
+        (5, '5 - Outstanding'),
+        (4, '4 - Exceeds Expectations'),
+        (3, '3 - Meets Expectations'),
+        (2, '2 - Below Expectations'),
+        (1, '1 - Needs Improvement'),
+    ]
+ 
     # ── Who is involved ──
-    # employee: links to a CustomUser account (nullable for public submissions)
-    # null=True, blank=True → allows public submissions where there is no user account
-    # CASCADE → if the employee's account is deleted, their appraisals are deleted too
     employee = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='appraisals',
-        null=True,
-        blank=True,
+        null=True, blank=True,
         limit_choices_to={'role': CustomUser.ROLE_EMPLOYEE}
     )
-
-    # These two fields store the name and department for PUBLIC submissions
-    # (employees who fill in the form without logging in)
+    # These two store the name and department for public submissions
     employee_name       = models.CharField(max_length=200, blank=True)
     employee_department = models.CharField(max_length=100, blank=True)
-
-    # reviewed_by_lead: filled in automatically when the lead submits their review
-    # SET_NULL → if the lead account is deleted, this field becomes null (appraisal stays)
+ 
     reviewed_by_lead = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name='lead_reviews',
         limit_choices_to={'role': CustomUser.ROLE_TEAM_LEAD}
     )
-
-    # reviewed_by_hr: filled in automatically when HR finalises the appraisal
     reviewed_by_hr = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        null=True, blank=True,
         related_name='hr_reviews',
         limit_choices_to={'role': CustomUser.ROLE_HR}
     )
-
+ 
     # ── General info ──
-    period = models.CharField(max_length=100)  # e.g. "Q1 2025" or "Annual 2025"
+    period = models.CharField(max_length=100)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default=STATUS_PENDING_LEAD  # public submissions go straight to lead queue
+        default=STATUS_PENDING_LEAD
     )
-
-    # ── SECTION 1: Employee fills these in ──
-    self_summary      = models.TextField()
-    achievements      = models.TextField()
-    challenges        = models.TextField()
-    goals_next_period = models.TextField()
-    training_needs    = models.TextField(blank=True)    # optional
-    additional_comments = models.TextField(blank=True)  # optional
-
+ 
+    # ── SECTION 1: Self-Assessment Rating Scores ──
+    # Each field stores a number from 1 to 5 selected by the employee
+ 
+    # 1. Punctuality & Attendance
+    score_punctuality = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Punctuality & Attendance'
+    )
+    # 2. Quality of Work
+    score_quality = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Quality of Work'
+    )
+    # 3. Teamwork & Collaboration
+    score_teamwork = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Teamwork & Collaboration'
+    )
+    # 4. Communication Skills
+    score_communication = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Communication Skills'
+    )
+    # 5. Meeting Deadlines
+    score_deadlines = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Meeting Deadlines'
+    )
+    # 6. Problem Solving
+    score_problem_solving = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Problem Solving'
+    )
+    # 7. Initiative & Creativity
+    score_initiative = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Initiative & Creativity'
+    )
+    # 8. Professionalism
+    score_professionalism = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Professionalism'
+    )
+    # 9. Adherence to Company Rules
+    score_adherence = models.IntegerField(
+        choices=SCORE_CHOICES, null=True, blank=True,
+        verbose_name='Adherence to Company Rules'
+    )
+ 
+    # Optional written comment from the employee
+    additional_comments = models.TextField(blank=True)
+ 
     # ── SECTION 2: Team Lead fills these in ──
     lead_comment = models.TextField(blank=True)
     lead_rating  = models.IntegerField(null=True, blank=True, choices=RATING_CHOICES)
-
+ 
     # ── SECTION 3: HR fills these in ──
     hr_comment  = models.TextField(blank=True)
     hr_decision = models.CharField(max_length=100, blank=True)
-
+ 
     # ── Timestamps ──
-    # auto_now_add → set ONCE when the record is first created, never changes
-    # auto_now     → updated EVERY TIME the record is saved
-    # The others are set manually inside the workflow methods below
-    created_at          = models.DateTimeField(auto_now_add=True)
-    updated_at          = models.DateTimeField(auto_now=True)
+    created_at           = models.DateTimeField(auto_now_add=True)
+    updated_at           = models.DateTimeField(auto_now=True)
     submitted_to_lead_at = models.DateTimeField(null=True, blank=True)
-    submitted_to_hr_at  = models.DateTimeField(null=True, blank=True)
-    reviewed_at         = models.DateTimeField(null=True, blank=True)
-
+    submitted_to_hr_at   = models.DateTimeField(null=True, blank=True)
+    reviewed_at          = models.DateTimeField(null=True, blank=True)
+ 
     class Meta:
-        ordering = ['-created_at']  # newest appraisals appear first
-
+        ordering = ['-created_at']
+ 
     def __str__(self):
-        # Show employee name — use the name field for public submissions
         name = self.employee_name or (
             self.employee.get_full_name() if self.employee else 'Unknown'
         )
         return f"{name} — {self.period}"
-
-    # ── Workflow methods ──
-    # These move the appraisal through the pipeline one step at a time.
-
+ 
     def submit_to_hr(self, lead_user):
-        """Called when the Team Lead submits their review."""
         self.status = self.STATUS_PENDING_HR
         self.reviewed_by_lead = lead_user
         self.submitted_to_hr_at = timezone.now()
         self.save()
-
+ 
     def mark_reviewed(self, hr_user):
-        """Called when HR finalises the appraisal."""
         self.status = self.STATUS_REVIEWED
         self.reviewed_by_hr = hr_user
         self.reviewed_at = timezone.now()
         self.save()
-
+ 
     @property
     def status_badge_class(self):
-        """Returns a CSS class name based on the current status, used in templates."""
         return {
             self.STATUS_DRAFT:        'badge-draft',
             self.STATUS_PENDING_LEAD: 'badge-lead',
             self.STATUS_PENDING_HR:   'badge-hr',
             self.STATUS_REVIEWED:     'badge-reviewed',
         }.get(self.status, 'badge-draft')
-
+ 
     @property
     def display_name(self):
-        """Returns the employee's name whether they logged in or submitted publicly."""
         if self.employee_name:
             return self.employee_name
         if self.employee:
             return self.employee.get_full_name() or self.employee.username
         return 'Unknown'
+ 
+    @property
+    def average_score(self):
+        """Calculates the average of all 9 self-assessment scores."""
+        scores = [
+            self.score_punctuality, self.score_quality, self.score_teamwork,
+            self.score_communication, self.score_deadlines, self.score_problem_solving,
+            self.score_initiative, self.score_professionalism, self.score_adherence,
+        ]
+        filled = [s for s in scores if s is not None]
+        if not filled:
+            return None
+        return round(sum(filled) / len(filled), 1)
