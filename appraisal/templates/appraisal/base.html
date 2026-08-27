@@ -282,20 +282,20 @@
     {% if user.is_employee %}
     <div class="nav-section-label">Employee</div>
     <a href="{% url 'employee_dashboard' %}" class="nav-link {% block nav_home %}{% endblock %}">
-      <span class="icon">🏠</span> My Dashboard
+       My Dashboard
     </a>
     <a href="{% url 'appraisal_create' %}" class="nav-link {% block nav_new %}{% endblock %}">
-      <span class="icon">✏️</span> New Appraisal
+       New Appraisal
     </a>
     {% elif user.is_team_lead %}
     <div class="nav-section-label">Team Lead</div>
     <a href="{% url 'lead_dashboard' %}" class="nav-link {% block nav_lead %}{% endblock %}">
-      <span class="icon">👥</span> Team Reviews
+       Team Reviews
     </a>
     {% elif user.is_hr %}
     <div class="nav-section-label">HR</div>
     <a href="{% url 'hr_dashboard' %}" class="nav-link {% block nav_hr %}{% endblock %}">
-      <span class="icon">📋</span> All Appraisals
+       All Appraisals
     </a>
     {% endif %}
   </nav>

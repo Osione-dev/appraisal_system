@@ -66,8 +66,6 @@ def logout_view(request):
 # This is the main new feature — employees fill in their appraisal here
 # WITHOUT needing to log in. They just enter their name and fill in the form.
 # =============================================================================
-
-def public_appraisal(request):
     """
     Shows a blank appraisal form on GET.
     Saves the submitted appraisal on POST and redirects to a thank-you page.
